@@ -1,0 +1,25 @@
+[package]
+name = "bunnycli"
+version = "0.1.0"
+authors = ["Sebastian Schmidt <publicarray@users.noreply.github.com>"]
+edition = "2018"
+license = "GPL-3.0-only"
+repository = "https://github.com/publicarray/bunnycli"
+readme = "README.md"
+description = "The unofficial CLI for BunnyCDN 🐰"
+categories = ["command-line-utilities"]
+keywords = ["BunnyCDN", "Storage Bucket"]
+[badges]
+maintenance = { status = "experimental" }
+is-it-maintained-issue-resolution = { repository = "https://github.com/publicarray/bunnycli" }
+is-it-maintained-open-issues = { repository = "https://github.com/publicarray/bunnycli" }
+[dependencies]
+bunnycdn = { path = "../bunnycdn", version = "0.1" }
+# Async
+tokio = "0.2.0"
+# cli pharse arguments/commands
+clap = "~2.27.0"
+# read/save config
+toml = "0.5.6"
+serde = "1.0"
+dirs = "2.0"
