@@ -175,9 +175,9 @@ fn main() {
             let response = rt.block_on(storagezone.delete(url)).unwrap();
             // println!("cli: {:?}", response);
             response.print();
-        } else if cli.is_present("directory_info") {
-            let url = cli.value_of("directory_info").unwrap();
-            println!("directory_info {}", url);
+        } else if cli.is_present("directory") {
+            let url = cli.value_of("directory").unwrap();
+            println!("directory {}", url);
             let response = rt.block_on(storagezone.get_objects(url)).unwrap();
             // println!("cli: {:?}", response);
             response.print();
