@@ -2,6 +2,9 @@
 extern crate bunnycdn;
 #[macro_use]
 extern crate clap;
+#[macro_use] extern crate log;
+extern crate simplelog;
+use simplelog::*;
 
 use std::collections::HashMap;
 
@@ -9,7 +12,7 @@ use bunnycdn::*;
 use clap::{App, Arg, SubCommand};
 use std::fs;
 use std::io;
-// use std::io::prelude::*;
+
 use tokio::runtime::{Builder, Runtime};
 
 fn rt() -> Runtime {
@@ -34,7 +37,7 @@ fn load_config(config_file: &str) -> Config {
     if std::path::Path::new(config_file).exists() {
         let toml_str = fs::read_to_string(config_file).unwrap();
         config = toml::from_str(&toml_str).unwrap();
-        println!("{:#?}", config);
+        trace!("{:#?}", config);
     }
     return config;
     // settings.merge(config::Environment::with_prefix("BUNNY")).unwrap();
@@ -58,12 +61,12 @@ fn main() {
              .default_value(default_config_file.as_str())
              .help("Sets a custom config file")
              .takes_value(true))
-        // .arg(
-        //     Arg::with_name("v")
-        //         .short("v")
-        //         .multiple(true)
-        //         .help("Sets the level of verbosity"),
-        // )
+        .arg(
+            Arg::with_name("v")
+                .short("v")
+                .multiple(true)
+                .help("Sets the level of verbosity"),
+        )
         .subcommand(
             SubCommand::with_name("storage")
                 .about("Interact with BunnyCDN Storage Zones")
@@ -109,26 +112,30 @@ fn main() {
         )
         .get_matches();
 
+    let log_level = match cli.occurrences_of("v") {
+        0 => LevelFilter::Warn,
+        1 => LevelFilter::Info,
+        2 => LevelFilter::Debug,
+        3 | _ => LevelFilter::Trace,
+    };
+
+    if let Err(_) = TermLogger::init(log_level, simplelog::Config::default(), TerminalMode::Mixed) {
+        SimpleLogger::init(log_level, simplelog::Config::default()).expect("No logger should be already set")
+    }
+
     let config_file = cli.value_of("config").unwrap_or("bunnycli.toml");
-    println!("Value for config_file: {}", config_file);
+    debug!("Value for config_file: {}", config_file);
     let mut storagezone = storage::StorageZone::new(String::new(), String::new());
     let mut settings = load_config(&config_file);
     if let Some(zone) = settings.storage_zone {
         storagezone = zone
     }
 
-    // match matches.occurrences_of("v") {
-    //     0 => println!(""),
-    //     1 => println!("Some verbose info"),
-    //     2 => println!("Tons of verbose info"),
-    //     3 | _ => println!("Don't be crazy"),
-    // }
-
     let mut rt = rt();
 
     if let Some(cli) = cli.subcommand_matches("storage") {
         if cli.is_present("login") {
-            let storage_zone = cli.value_of("login").unwrap();
+            let storage_zone_name = cli.value_of("login").unwrap();
             println!("Enter your API Key:");
             let mut api_key = String::new();
             io::stdin().read_line(&mut api_key).unwrap();
@@ -138,9 +145,9 @@ fn main() {
             //     break
             // }
             // ask for api key
-            let storage_zone1 = storage::StorageZone::new(storage_zone.to_string(), api_key.trim().to_string());
-            println!("{:?}", storage_zone1);
-            settings.storage_zone = Some(storage_zone1);
+            let storage_zone = storage::StorageZone::new(storage_zone_name.to_string(), api_key.trim().to_string());
+            debug!("{:?}", storage_zone);
+            settings.storage_zone = Some(storage_zone);
             save_config(config_file, &settings);
         // save_conf(settings)
         // settings.merge(config::Config::try_from(&storage_zone1).unwrap());
@@ -158,31 +165,31 @@ fn main() {
         } else if cli.is_present("upload") {
             let args: Vec<&str> = cli.values_of("upload").unwrap().collect();
             let (file, url) = (args[0], args[1]);
-            println!("upload {} {}", file, url);
+            debug!("upload {} {}", file, url);
             let response = rt.block_on(storagezone.upload_file(file, url)).unwrap();
-            // println!("cli: {:?}", response);
+            trace!("cli: {:?}", response);
             response.print();
         } else if cli.is_present("download") {
             let args: Vec<&str> = cli.values_of("download").unwrap().collect();
             let (file, url) = (args[0], args[1]);
-            println!("download {} {}", file, url);
+            debug!("download {} {}", file, url);
             let response = rt.block_on(storagezone.download_file(file, url)).unwrap();
-            // println!("cli: {:?}", response);
+            trace!("cli: {:?}", response);
             response.print();
         } else if cli.is_present("remove") {
             let url = cli.value_of("remove").unwrap();
-            println!("remove {}", url);
+            debug!("remove {}", url);
             let response = rt.block_on(storagezone.delete(url)).unwrap();
-            // println!("cli: {:?}", response);
+            trace!("cli: {:?}", response);
             response.print();
         } else if cli.is_present("directory") {
             let url = cli.value_of("directory").unwrap();
-            println!("directory {}", url);
+            debug!("directory {}", url);
             let response = rt.block_on(storagezone.get_objects(url)).unwrap();
-            // println!("cli: {:?}", response);
+            trace!("cli: {:?}", response);
             response.print();
         } else {
-            println!("Missing flags");
+            error!("Missing flags");
             println!("{}", cli.usage());
         }
     } else {

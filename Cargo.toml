@@ -16,10 +16,13 @@ is-it-maintained-open-issues = { repository = "https://github.com/publicarray/bu
 [dependencies]
 bunnycdn = { path = "../bunnycdn", version = "0.1" }
 # Async
-tokio = "0.2.0"
+tokio = "0.2"
 # cli pharse arguments/commands
-clap = "~2.27.0"
+clap = "2.27"
 # read/save config
-toml = "0.5.6"
+toml = "0.5"
 serde = "1.0"
 dirs = "2.0"
+#logs
+log = "0.4"
+simplelog = "0.7"
