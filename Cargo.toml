@@ -23,6 +23,6 @@ clap = "2.27"
 toml = "0.5"
 serde = "1.0"
 dirs = "2.0"
-#logs
+#logging
 log = "0.4"
 simplelog = "0.7"

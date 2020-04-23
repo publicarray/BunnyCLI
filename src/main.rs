@@ -2,7 +2,8 @@
 extern crate bunnycdn;
 #[macro_use]
 extern crate clap;
-#[macro_use] extern crate log;
+#[macro_use]
+extern crate log;
 extern crate simplelog;
 use simplelog::*;
 
