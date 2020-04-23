@@ -9,6 +9,11 @@ readme = "README.md"
 description = "The unofficial CLI for BunnyCDN 🐰"
 categories = ["command-line-utilities"]
 keywords = ["BunnyCDN", "Storage Bucket"]
+include = [
+    "src/**/*.rs",
+    "Cargo.toml",
+    "README.md"
+]
 [badges]
 maintenance = { status = "experimental" }
 is-it-maintained-issue-resolution = { repository = "https://github.com/publicarray/bunnycli" }
@@ -17,7 +22,7 @@ is-it-maintained-open-issues = { repository = "https://github.com/publicarray/bu
 bunnycdn = { path = "../bunnycdn", version = "0.1" }
 # Async
 tokio = "0.2"
-# cli pharse arguments/commands
+# cli parse arguments/commands
 clap = "2.27"
 # read/save config
 toml = "0.5"
