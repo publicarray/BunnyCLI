@@ -173,14 +173,14 @@ fn main() -> Result<()> {
             let args: Vec<&str> = cli.values_of("upload").unwrap().collect();
             let (file, url) = (args[0], args[1]);
             debug!("upload {} {}", file, url);
-            let response = rt.block_on(storagezone.upload_file(file, url)).unwrap();
+            let response = rt.block_on(storagezone.upload_file(file, url))?;
             trace!("cli: {:?}", response);
             response.print();
         } else if cli.is_present("download") {
             let args: Vec<&str> = cli.values_of("download").unwrap().collect();
             let (file, url) = (args[0], args[1]);
             debug!("download {} {}", file, url);
-            let response = rt.block_on(storagezone.download_file(file, url)).unwrap();
+            let response = rt.block_on(storagezone.download_file(file, url))?;
             trace!("cli: {:?}", response);
             response.print();
         } else if cli.is_present("remove") {
@@ -192,7 +192,7 @@ fn main() -> Result<()> {
         } else if cli.is_present("directory") {
             let url = cli.value_of("directory").unwrap();
             debug!("directory {}", url);
-            let response = rt.block_on(storagezone.get_objects(url)).unwrap();
+            let response = rt.block_on(storagezone.get_objects(url))?;
             trace!("cli: {:?}", response);
             response.print();
         } else {
