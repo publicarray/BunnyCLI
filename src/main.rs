@@ -5,26 +5,25 @@ extern crate clap;
 #[macro_use]
 extern crate log;
 extern crate simplelog;
-use simplelog::*;
-
-use std::collections::HashMap;
-
+use anyhow::{anyhow, Context, Result};
 use bunnycdn::*;
 use clap::{App, Arg, SubCommand};
+use simplelog::*;
+use std::collections::HashMap;
 use std::fs;
 use std::io;
 
 use tokio::runtime::{Builder, Runtime};
 
-fn rt() -> Runtime {
-    Builder::new().basic_scheduler().enable_all().build().unwrap()
+fn rt() -> Result<Runtime> {
+    Ok(Builder::new().basic_scheduler().enable_all().build()?)
 }
 
-fn get_default_config_file() -> String {
+fn get_default_config_file() -> Result<String> {
     let mut home_dir = String::new();
     let mut home_path = dirs::home_dir().unwrap();
     home_path.push(std::path::Path::new(".config/bunnycli.tml"));
-    home_path.into_os_string().into_string().unwrap()
+    Ok(home_path.into_os_string().into_string().unwrap())
 }
 
 use serde::{Deserialize, Serialize};
@@ -33,24 +32,28 @@ struct Config {
     storage_zone: Option<storage::StorageZone>,
 }
 
-fn load_config(config_file: &str) -> Config {
+fn load_config(config_file: &str) -> Result<Config> {
     let mut config: Config = Config { storage_zone: None };
     if std::path::Path::new(config_file).exists() {
-        let toml_str = fs::read_to_string(config_file).unwrap();
-        config = toml::from_str(&toml_str).unwrap();
+        let toml_str =
+            fs::read_to_string(config_file).with_context(|| format!("Failed to read config file: {}", config_file))?;
+        config = toml::from_str(&toml_str).context("Failed to convert config file to toml string")?;
         trace!("{:#?}", config);
+    } else {
+        return Err(anyhow!("Config file not found: {}", config_file));
     }
-    return config;
+    Ok(config)
     // settings.merge(config::Environment::with_prefix("BUNNY")).unwrap();
 }
 
-fn save_config(config_file: &str, config: &Config) {
-    let toml_str = toml::to_string(config).unwrap();
-    fs::write(config_file, toml_str).unwrap();
+fn save_config(config_file: &str, config: &Config) -> Result<()> {
+    let toml_str = toml::to_string(config).context("Failed to convert config struct to toml string")?;
+    fs::write(config_file, toml_str).with_context(|| format!("Failed to write config file: {}", config_file))?;
+    Ok(())
 }
 
-fn main() {
-    let default_config_file = get_default_config_file();
+fn main() -> Result<()> {
+    let default_config_file = get_default_config_file()?;
     let cli = App::new(crate_name!())
         .version(crate_version!())
         .author(crate_authors!())
@@ -127,12 +130,12 @@ fn main() {
     let config_file = cli.value_of("config").unwrap_or("bunnycli.toml");
     debug!("Value for config_file: {}", config_file);
     let mut storagezone = storage::StorageZone::new(String::new(), String::new());
-    let mut settings = load_config(&config_file);
+    let mut settings = load_config(&config_file)?;
     if let Some(zone) = settings.storage_zone {
         storagezone = zone
     }
 
-    let mut rt = rt();
+    let mut rt = rt()?;
 
     if let Some(cli) = cli.subcommand_matches("storage") {
         if cli.is_present("login") {
@@ -149,7 +152,7 @@ fn main() {
             let storage_zone = storage::StorageZone::new(storage_zone_name.to_string(), api_key.trim().to_string());
             debug!("{:?}", storage_zone);
             settings.storage_zone = Some(storage_zone);
-            save_config(config_file, &settings);
+            save_config(config_file, &settings)?;
         // save_conf(settings)
         // settings.merge(config::Config::try_from(&storage_zone1).unwrap());
         // settings.refresh();
@@ -196,4 +199,5 @@ fn main() {
     } else {
         println!("{}", cli.usage());
     }
+    Ok(())
 }

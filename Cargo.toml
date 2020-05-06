@@ -14,10 +14,12 @@ include = [
     "Cargo.toml",
     "README.md"
 ]
+
 [badges]
 maintenance = { status = "experimental" }
-is-it-maintained-issue-resolution = { repository = "https://github.com/publicarray/bunnycli" }
-is-it-maintained-open-issues = { repository = "https://github.com/publicarray/bunnycli" }
+is-it-maintained-issue-resolution = { repository = "publicarray/bunnycli" }
+is-it-maintained-open-issues = { repository = "publicarray/bunnycli" }
+
 [dependencies]
 bunnycdn = { path = "../bunnycdn", version = "0.1" }
 # Async
@@ -28,6 +30,11 @@ clap = "2.27"
 toml = "0.5"
 serde = "1.0"
 dirs = "2.0"
-#logging
+# logging
 log = "0.4"
 simplelog = "0.7"
+# errors
+anyhow = "1.0"
+
+[profile.release]
+lto = true
