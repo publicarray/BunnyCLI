@@ -5,7 +5,7 @@ extern crate clap;
 #[macro_use]
 extern crate log;
 extern crate simplelog;
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, bail, Context, Result};
 use bunnycdn::*;
 use clap::{App, Arg, SubCommand};
 use simplelog::*;
@@ -21,7 +21,10 @@ fn rt() -> Result<Runtime> {
 
 fn get_default_config_file() -> Result<String> {
     let mut home_dir = String::new();
-    let mut home_path = dirs::home_dir().unwrap();
+    let mut home_path = match dirs::home_dir() {
+        Some(home_path) => home_path,
+        None => bail!("Could not get Home path '~'"),
+    };
     home_path.push(std::path::Path::new(".config/bunnycli.tml"));
     Ok(home_path.into_os_string().into_string().unwrap())
 }
@@ -37,7 +40,7 @@ fn load_config(config_file: &str) -> Result<Config> {
     if std::path::Path::new(config_file).exists() {
         let toml_str =
             fs::read_to_string(config_file).with_context(|| format!("Failed to read config file: {}", config_file))?;
-        config = toml::from_str(&toml_str).context("Failed to convert config file to toml string")?;
+        config = toml::from_str(&toml_str).with_context(|| format!("Failed to read config file: {}", config_file))?;
         trace!("{:#?}", config);
     } else {
         return Err(anyhow!("Config file not found: {}", config_file));
@@ -142,7 +145,7 @@ fn main() -> Result<()> {
             let storage_zone_name = cli.value_of("login").unwrap();
             println!("Enter your API Key:");
             let mut api_key = String::new();
-            io::stdin().read_line(&mut api_key).unwrap();
+            io::stdin().read_line(&mut api_key)?;
             // let stdin = io::stdin();
             // for line in stdin.lock().lines() {
             //     api_key = line.unwrap();
@@ -183,7 +186,7 @@ fn main() -> Result<()> {
         } else if cli.is_present("remove") {
             let url = cli.value_of("remove").unwrap();
             debug!("remove {}", url);
-            let response = rt.block_on(storagezone.delete(url)).unwrap();
+            let response = rt.block_on(storagezone.delete(url))?;
             trace!("cli: {:?}", response);
             response.print();
         } else if cli.is_present("directory") {
