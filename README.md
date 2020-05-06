@@ -24,6 +24,7 @@ cargo install bunnycli
 ./bunnycli storage --upload '/file/path/file.txt' 'server/path/file.txt'
 ./bunnycli storage --download '/save/file/path/file.txt' 'server/path/file.txt'
 ./bunnycli storage --remove 'server/path/file.txt'
+env BUNNY_STORAGE_API_KEY="" BUNNY_STORAGE_ZONE="" ./bunnycli storage --info 'server/path/file.txt'
 ```
 
 ## Configuration

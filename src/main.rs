@@ -5,6 +5,8 @@ extern crate clap;
 #[macro_use]
 extern crate log;
 extern crate simplelog;
+extern crate rpassword;
+extern crate keyring;
 use anyhow::{anyhow, bail, Context, Result};
 use bunnycdn::*;
 use clap::{App, Arg, SubCommand};
@@ -143,19 +145,13 @@ fn main() -> Result<()> {
     if let Some(cli) = cli.subcommand_matches("storage") {
         if cli.is_present("login") {
             let storage_zone_name = cli.value_of("login").unwrap();
-            println!("Enter your API Key:");
-            let mut api_key = String::new();
-            io::stdin().read_line(&mut api_key)?;
-            // let stdin = io::stdin();
-            // for line in stdin.lock().lines() {
-            //     api_key = line.unwrap();
-            //     break
-            // }
-            // ask for api key
+            let api_key = rpassword::read_password_from_tty(Some("Enter your Storage API Key: ")).unwrap();
+
             let storage_zone = storage::StorageZone::new(storage_zone_name.to_string(), api_key.trim().to_string());
             debug!("{:?}", storage_zone);
             settings.storage_zone = Some(storage_zone);
             save_config(config_file, &settings)?;
+            println!("{}", "Config Saved!");
         // save_conf(settings)
         // settings.merge(config::Config::try_from(&storage_zone1).unwrap());
         // settings.refresh();
