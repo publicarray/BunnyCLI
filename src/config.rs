@@ -7,6 +7,7 @@ use std::fs;
 use std::io;
 
 const APP_NAME: &str = "bunnycli-storage";
+const SERVER_URL: &str = "https://storage.bunnycdn.com";
 
 pub fn get_default_config_file() -> Result<String> {
     let mut home_dir = String::new();
@@ -36,19 +37,28 @@ impl Config {
         Ok(())
     }
 
-    pub fn storage_zone(&self) -> storage::StorageZone {
-        let keyring = keyring::Keyring::new(APP_NAME, &self.storage_zone.as_ref().unwrap().name);
-        let storage_api_key = keyring.get_password().unwrap_or_else(|err| {
-            error!("{}", err);
-            String::new()
-        });
-        storage::StorageZone::new(self.storage_zone.as_ref().unwrap().name.clone(), storage_api_key)
+    pub fn storage_zone(&mut self) -> storage::StorageZone {
+        if let Some(conf_storage_zone) = &self.storage_zone.as_ref() {
+            let keyring = keyring::Keyring::new(APP_NAME, &conf_storage_zone.name);
+            let storage_api_key = keyring.get_password().unwrap_or_else(|err| {
+                error!("{}", err);
+                String::new()
+            });
+            let mut storage_zone = storage::StorageZone::new(conf_storage_zone.name.clone(), storage_api_key);
+            if (conf_storage_zone.api_endpoint.len() > 0) {
+                storage_zone.set_api_endpoint(&conf_storage_zone.api_endpoint);
+            }
+            storage_zone
+        } else {
+            warn!("no storage_zone in config file");
+            storage::StorageZone::new("".to_string(), "".to_string())
+        }
     }
 
-    pub fn set_storage_zone(&self, zone_name: &str, api_key: &str) -> Result<()> {
+    pub fn set_storage_zone(&mut self, zone_name: &str, api_key: &str) -> Result<()> {
         let keyring = keyring::Keyring::new(APP_NAME, &zone_name);
         keyring.set_password(&api_key)?;
-        self.storage_zone.to_owned().unwrap().name = zone_name.to_string();
+        self.storage_zone = Some(StorageZone{name: zone_name.to_string(), api_endpoint: SERVER_URL.to_string()});
         Ok(())
     }
 }
@@ -61,7 +71,8 @@ pub fn load_config(config_file: &str) -> Result<Config> {
         config = toml::from_str(&toml_str).with_context(|| format!("Failed to read config file: {}", config_file))?;
         trace!("{:#?}", config);
     } else {
-        return Err(anyhow!("Config file not found: {}", config_file));
+        fs::File::create(config_file)?;
+        info!("Config file created");
     }
     Ok(config)
     // settings.merge(config::Environment::with_prefix("BUNNY")).unwrap();

@@ -23,6 +23,7 @@ cargo install bunnycli
 ./bunnycli storage --login storage_zone_name
 ./bunnycli storage --upload '/file/path/file.txt' 'server/path/file.txt'
 ./bunnycli storage --download '/save/file/path/file.txt' 'server/path/file.txt'
+./bunnycli storage --info '/' | jq
 ./bunnycli storage --remove 'server/path/file.txt'
 ```
 

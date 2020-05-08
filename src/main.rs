@@ -76,9 +76,9 @@ fn main() -> Result<()> {
             let response = rt.block_on(storage_zone.delete(url))?;
             trace!("storagecli: {:?}", response);
             response.print();
-        } else if storagecli.is_present("directory") {
-            let url = storagecli.value_of("directory").unwrap();
-            debug!("directory {}", url);
+        } else if storagecli.is_present("info") {
+            let url = storagecli.value_of("info").unwrap();
+            debug!("info {}", url);
             let response = rt.block_on(storage_zone.get_objects(url))?;
             trace!("storagecli: {:?}", response);
             response.print();
