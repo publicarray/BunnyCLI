@@ -48,9 +48,8 @@ fn main() -> Result<()> {
     let mut rt = rt()?;
 
     if let Some(storagecli) = cli.subcommand_matches("storage") {
-        // println!("{:?}", storagecli.subcommand_matches("login").unwrap());
         if storagecli.is_present("login") {
-            let storage_zone_name = cli.value_of("login").unwrap();
+            let storage_zone_name = storagecli.value_of("login").unwrap();
             let api_key = rpassword::read_password_from_tty(Some("Enter your Storage API Key: ")).unwrap();
 
             settings.set_storage_zone(storage_zone_name, api_key.trim())?;
