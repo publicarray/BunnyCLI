@@ -8,7 +8,6 @@ use std::io;
 
 const APP_NAME: &str = "bunnycli-storage";
 
-
 pub fn get_default_config_file() -> Result<String> {
     let mut home_dir = String::new();
     let mut home_path = match dirs::home_dir() {
@@ -26,7 +25,7 @@ pub struct Config {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct StorageZone {
-    pub name:String,
+    pub name: String,
     pub api_endpoint: String,
 }
 

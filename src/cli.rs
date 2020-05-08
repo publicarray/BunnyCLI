@@ -1,4 +1,4 @@
-use clap::{App, Arg, AppSettings};
+use clap::{App, AppSettings, Arg};
 
 pub fn create_cli(default_config_file: &str) -> clap::ArgMatches {
     App::new(crate_name!())

@@ -56,7 +56,6 @@ fn main() -> Result<()> {
             settings.set_storage_zone(storage_zone_name, api_key.trim())?;
             settings.save_config(config_file)?;
             println!("{}", "Config Saved!");
-
         } else if storagecli.is_present("upload") {
             let args: Vec<&str> = storagecli.values_of("upload").unwrap().collect();
             let (file, url) = (args[0], args[1]);
