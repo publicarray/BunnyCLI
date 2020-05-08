@@ -6,6 +6,7 @@ pub fn create_cli(default_config_file: &str) -> clap::ArgMatches {
         .author(crate_authors!())
         .about(crate_description!())
         .setting(AppSettings::SubcommandRequired)
+        .setting(AppSettings::SubcommandPrecedenceOverArg)
         .arg(Arg::with_name("config")
              .short('c')
              .long("config")

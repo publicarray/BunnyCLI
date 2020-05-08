@@ -1,4 +1,5 @@
 #![allow(unused)]
+#![forbid(unsafe_code)]
 extern crate bunnycdn;
 #[macro_use]
 extern crate clap;

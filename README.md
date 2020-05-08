@@ -34,7 +34,6 @@ cargo install bunnycli
 [storage_zone]
 api_endpoint = "https://storage.bunnycdn.com"
 name = "Your Storage Zone Name"
-api_key = "Your Storage Zone FTP Password"
 ```
 
 This is my first cli crate, please be gentle
