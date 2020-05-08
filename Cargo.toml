@@ -8,7 +8,7 @@ repository = "https://github.com/publicarray/bunnycli"
 readme = "README.md"
 description = "The unofficial CLI for BunnyCDN 🐰"
 categories = ["command-line-utilities"]
-keywords = ["BunnyCDN", "Storage Bucket"]
+keywords = ["BunnyCDN"]
 include = [
     "src/**/*.rs",
     "Cargo.toml",
