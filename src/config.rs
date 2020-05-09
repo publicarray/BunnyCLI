@@ -1,16 +1,11 @@
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{bail, Context, Result};
 use bunnycdn::*;
 use serde::{Deserialize, Serialize};
-use simplelog::*;
-use std::collections::HashMap;
 use std::fs;
-use std::io;
-
 const APP_NAME: &str = "bunnycli-storage";
 const SERVER_URL: &str = "https://storage.bunnycdn.com";
 
 pub fn get_default_config_file() -> Result<String> {
-    let mut home_dir = String::new();
     let mut home_path = match dirs::home_dir() {
         Some(home_path) => home_path,
         None => bail!("Could not get Home path '~'"),
@@ -45,7 +40,7 @@ impl Config {
                 String::new()
             });
             let mut storage_zone = storage::StorageZone::new(conf_storage_zone.name.clone(), storage_api_key);
-            if (conf_storage_zone.api_endpoint.len() > 0) {
+            if conf_storage_zone.api_endpoint.len() > 0 {
                 storage_zone.set_api_endpoint(&conf_storage_zone.api_endpoint);
             }
             storage_zone

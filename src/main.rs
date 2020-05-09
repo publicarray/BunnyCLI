@@ -10,7 +10,6 @@ extern crate rpassword;
 extern crate simplelog;
 use std::env;
 use anyhow::Result;
-use bunnycdn::*;
 use simplelog::*;
 pub mod config;
 use crate::config::*;
@@ -22,8 +21,6 @@ use tokio::runtime::{Builder, Runtime};
 fn rt() -> Result<Runtime> {
     Ok(Builder::new().basic_scheduler().enable_all().build()?)
 }
-
-const APP_NAME: &str = "bunnycli-storage";
 
 fn main() -> Result<()> {
     let default_config_file = get_default_config_file()?;
@@ -51,7 +48,7 @@ fn main() -> Result<()> {
         if storagecli.is_present("login") {
             let storage_zone_name = storagecli.value_of("login").unwrap();
             if let Some(api_key_ostr) = env::var_os("STORAGE_API_KEY") {
-                let mut api_key:String;
+                let api_key:String;
                 if !api_key_ostr.is_empty() {
                     api_key = api_key_ostr.into_string().unwrap();
                 } else {
