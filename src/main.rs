@@ -8,6 +8,7 @@ extern crate log;
 extern crate keyring;
 extern crate rpassword;
 extern crate simplelog;
+use std::env;
 use anyhow::Result;
 use bunnycdn::*;
 use simplelog::*;
@@ -43,20 +44,31 @@ fn main() -> Result<()> {
     debug!("Value for config_file: {}", config_file);
 
     let mut settings = load_config(&config_file)?;
-    let storage_zone = settings.storage_zone();
-    trace!("The storage_zone is '{:?}'", storage_zone);
 
     let mut rt = rt()?;
 
     if let Some(storagecli) = cli.subcommand_matches("storage") {
         if storagecli.is_present("login") {
             let storage_zone_name = storagecli.value_of("login").unwrap();
-            let api_key = rpassword::read_password_from_tty(Some("Enter your Storage API Key: ")).unwrap();
+            if let Some(api_key_ostr) = env::var_os("STORAGE_API_KEY") {
+                let mut api_key:String;
+                if !api_key_ostr.is_empty() {
+                    api_key = api_key_ostr.into_string().unwrap();
+                } else {
+                    api_key = rpassword::read_password_from_tty(Some("Enter your Storage API Key: ")).unwrap();
+                }
+                settings.set_storage_zone(storage_zone_name, api_key.trim())?;
+            }
 
-            settings.set_storage_zone(storage_zone_name, api_key.trim())?;
             settings.save_config(config_file)?;
             println!("{}", "Config Saved!");
-        } else if storagecli.is_present("upload") {
+            return Ok(())
+        }
+
+        let storage_zone = settings.storage_zone();
+        trace!("The storage_zone is '{:?}'", storage_zone);
+
+        if storagecli.is_present("upload") {
             let args: Vec<&str> = storagecli.values_of("upload").unwrap().collect();
             let (file, url) = (args[0], args[1]);
             debug!("upload {} {}", file, url);
