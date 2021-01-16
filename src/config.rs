@@ -52,7 +52,7 @@ impl Config {
 
     pub fn set_storage_zone(&mut self, zone_name: &str, api_key: &str) -> Result<()> {
         let keyring = keyring::Keyring::new(APP_NAME, &zone_name);
-        keyring.set_password(&api_key).unwrap_err();
+        keyring.set_password(&api_key);
         self.storage_zone = Some(StorageZone{name: zone_name.to_string(), api_endpoint: SERVER_URL.to_string()});
         Ok(())
     }
