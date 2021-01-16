@@ -1,6 +1,6 @@
 [package]
 name = "bunnycli"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Sebastian Schmidt <publicarray@users.noreply.github.com>"]
 edition = "2018"
 license = "GPL-3.0-only"
@@ -21,21 +21,22 @@ is-it-maintained-issue-resolution = { repository = "publicarray/bunnycli" }
 is-it-maintained-open-issues = { repository = "publicarray/bunnycli" }
 
 [dependencies]
-bunnycdn = { path = "../bunnycdn", version = "0.1" }
+# bunnycdn = { path = "../bunnycdn", version = "0.1" }
+bunnycdn = "0.1"
 # Async
 tokio = "0.2"
 # cli parse arguments/commands
-clap = "3.0.0-beta.1"
+clap = "3.0.0-beta.2"
 # read/save config
 toml = "0.5"
 serde = "1.0"
-dirs = "2.0"
+dirs = "3.0.1"
 # password/secrets
-rpassword = "4.0"
-keyring = "0.9.0"
+rpassword = "5.0.0"
+keyring = "0.10.1"
 # logging
 log = "0.4"
-simplelog = "0.7"
+simplelog = "0.9.0"
 # errors
 anyhow = "1.0"
 
